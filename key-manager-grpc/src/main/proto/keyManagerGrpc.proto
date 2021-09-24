@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.edu.zup";
+option java_outer_classname = "KeyManagerGrpc";
+
+package com.edu.zup;
+
+service KeyManagerGrpcService {
+  rpc cadastra (KeyManagerGrpcRequest) returns (KeyManagerGrpcReply) {}
+}
+
+enum TipoChave{
+  chave_aleatoria = 0;
+  CPF = 1;
+  telefone_celular = 2;
+  email = 3;
+}
+
+enum TipoConta{
+  UNKNOWN = 0;
+  CONTA_CORRENTE = 1;
+  CONTA_POUPANCA = 2;
+}
+message KeyManagerGrpcRequest {
+  string identificadorCliente = 1;
+  TipoChave tipoChave = 2;
+  string valorChave = 3;
+  TipoConta tipoConta = 4;
+}
+
+message KeyManagerGrpcReply {
+  string identificadorCliente = 1;
+  string pixId = 2;
+}
