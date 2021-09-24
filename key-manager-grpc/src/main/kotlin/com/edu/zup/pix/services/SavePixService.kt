@@ -26,7 +26,9 @@ class SavePixService(
 
     fun pixServices(){
         var pix = Pix(request.valorChave, request.tipoChave, cliente, request.tipoConta)
-        criaChaveAleatoria(pix)
+        if (request.tipoChave == TipoChave.chave_aleatoria) {
+            pix.chave = UUID.randomUUID().toString()
+        }
         if (checaExistenciaDeChavePix(pix)) return
         if (persistePix(pix)) return
         criaResponse(pix, responseObserver!!)
@@ -37,7 +39,8 @@ class SavePixService(
         responseObserver: StreamObserver<KeyManagerGrpcReply>
     ) {
         val response =
-            KeyManagerGrpcReply.newBuilder().setIdentificadorCliente(request.identificadorCliente)
+            KeyManagerGrpcReply.newBuilder()
+                .setIdentificadorCliente(request.identificadorCliente.toString())
                 .setPixId(pix.id.toString())
                 .build()
         responseObserver!!.onNext(response)
@@ -76,11 +79,5 @@ class SavePixService(
             return true
         }
         return false
-    }
-
-    private fun criaChaveAleatoria(@Valid pix: Pix) {
-        if (request.tipoChave == TipoChave.chave_aleatoria) {
-            pix.chave = UUID.randomUUID().toString()
-        }
     }
 }

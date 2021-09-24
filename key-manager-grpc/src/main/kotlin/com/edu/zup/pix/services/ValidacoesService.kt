@@ -8,7 +8,7 @@ import io.grpc.stub.StreamObserver
 class ValidacoesService(val request: KeyManagerGrpcRequest?, val responseObserver: StreamObserver<KeyManagerGrpcReply>?) {
     fun checaFormatoCpf(cpf:String,responseObserver: StreamObserver<KeyManagerGrpcReply>?){
         if(!cpf.matches("^[0-9]{11}$".toRegex())){
-            responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("CPF inválido").asRuntimeException())
+            responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("O CPF DEVE SER NO FORMATO 11111111111").asRuntimeException())
             return
         }
     }
@@ -18,17 +18,17 @@ class ValidacoesService(val request: KeyManagerGrpcRequest?, val responseObserve
         }
         return
     }
-    fun checaFormatoEmail(email:String,responseObserver: StreamObserver<KeyManagerGrpcReply>?){
-        if(!email.contains("@") && email != null){
+    fun checaFormatoEmail(){
+        if((request?.valorChave?.contains("@") == false) && request?.valorChave?.isNotEmpty()!!){
             responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("Formato de email inválido").asRuntimeException())
         }
         return
     }
-    fun checaChaveAleatoria(chave:String,responseObserver: StreamObserver<KeyManagerGrpcReply>?){
-        if(chave!=null || chave!=""){
-            responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("Quando tipo for chave aleatória, o valor da chave não deve ser preenchido").asRuntimeException())
-        }
-        return
+    fun checaChaveAleatoria(){
+//        if(request?.valorChave.equals("")){
+//            responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("Quando tipo for chave aleatória, o valor da chave não deve ser preenchido").asRuntimeException())
+//        }
+//        return
     }
 
 }

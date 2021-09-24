@@ -10,6 +10,7 @@ import com.edu.zup.pix.services.ItauService
 import com.edu.zup.pix.services.SavePixService
 import com.edu.zup.pix.services.ValidacoesService
 import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import jakarta.inject.Inject
@@ -38,7 +39,13 @@ class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
             val cliente = ItauService(request!!,contaClient).buscaCliente()
             SavePixService(cliente, request, responseObserver,pixRepository).pixServices()
         } catch (e: HttpClientResponseException) {
-            logger.info(e.message)
+            responseObserver?.onError(
+                Status.NOT_FOUND
+                    .withDescription("Não foi encontrado um cliente com esse id")
+                    .asRuntimeException()
+            )
+            return
+        } catch (e:StatusRuntimeException){
             responseObserver?.onError(
                 Status.NOT_FOUND
                     .withDescription("Não foi encontrado um cliente com esse id")
@@ -59,8 +66,8 @@ class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
                 request.valorChave,
                 responseObserver
             )
-            request?.tipoChave == TipoChave.email -> validation.checaFormatoEmail(request.valorChave, responseObserver)
-            else -> validation.checaChaveAleatoria(request!!.valorChave, responseObserver)
+            request?.tipoChave == TipoChave.email -> validation.checaFormatoEmail()
+            else -> validation.checaChaveAleatoria()
         }
     }
 }
