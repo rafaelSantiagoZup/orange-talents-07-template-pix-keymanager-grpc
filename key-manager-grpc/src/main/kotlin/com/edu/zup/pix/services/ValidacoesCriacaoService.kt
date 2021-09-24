@@ -1,11 +1,17 @@
 package com.edu.zup.pix.services
 
+import com.edu.zup.ExcuiChaveGrpcRequest
+import com.edu.zup.ExcuiChaveGrpcResponse
 import com.edu.zup.KeyManagerGrpcReply
 import com.edu.zup.KeyManagerGrpcRequest
+import com.edu.zup.pix.client.ItauClient
+import com.edu.zup.pix.repository.PixRepository
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
+import io.micronaut.http.client.exceptions.HttpClientResponseException
+import java.util.*
 
-class ValidacoesService(val request: KeyManagerGrpcRequest?, val responseObserver: StreamObserver<KeyManagerGrpcReply>?) {
+class ValidacoesCriacaoService(val request: KeyManagerGrpcRequest?, val responseObserver: StreamObserver<KeyManagerGrpcReply>?) {
     fun checaFormatoCpf(cpf:String,responseObserver: StreamObserver<KeyManagerGrpcReply>?){
         if(!cpf.matches("^[0-9]{11}$".toRegex())){
             responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("O CPF DEVE SER NO FORMATO 11111111111").asRuntimeException())

@@ -1,5 +1,6 @@
 package com.edu.zup.pix.client
 
+import com.edu.zup.pix.requests.ClienteCheckRequest
 import com.edu.zup.pix.requests.ClienteRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Get
@@ -14,4 +15,7 @@ interface ItauClient {
 
     @Get("/{clienteId}/contas{?tipo}")
     fun getClienteFromServer(@PathVariable clienteId:String,@QueryValue tipo:String): HttpResponse<ClienteRequest>
+
+    @Get("/{clienteId}")
+    fun checkClienteFromServer(@PathVariable clienteId:String): HttpResponse<ClienteCheckRequest>
 }

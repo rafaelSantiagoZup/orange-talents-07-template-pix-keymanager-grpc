@@ -8,6 +8,7 @@ package com.edu.zup;
 
 service KeyManagerGrpcService {
   rpc cadastra (KeyManagerGrpcRequest) returns (KeyManagerGrpcReply) {}
+  rpc exclui(ExcuiChaveGrpcRequest) returns (ExcuiChaveGrpcResponse) {}
 }
 
 enum TipoChave{
@@ -31,6 +32,14 @@ message KeyManagerGrpcRequest {
 }
 
 message KeyManagerGrpcReply {
+  string identificadorCliente = 1;
+  string pixId = 2;
+}
+message ExcuiChaveGrpcRequest{
+  string identificadorCliente = 1;
+  string pixId = 2;
+}
+message ExcuiChaveGrpcResponse{
   string identificadorCliente = 1;
   string pixId = 2;
 }

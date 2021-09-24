@@ -1,34 +1,41 @@
 package com.edu.zup.pix
 
-import com.edu.zup.KeyManagerGrpcReply
-import com.edu.zup.KeyManagerGrpcRequest
-import com.edu.zup.KeyManagerGrpcServiceGrpc
-import com.edu.zup.TipoChave
+import com.edu.zup.*
 import com.edu.zup.pix.client.ItauClient
 import com.edu.zup.pix.repository.PixRepository
-import com.edu.zup.pix.services.ItauService
-import com.edu.zup.pix.services.SavePixService
-import com.edu.zup.pix.services.ValidacoesService
+import com.edu.zup.pix.services.*
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import org.slf4j.LoggerFactory
+import java.util.*
 
 
 @Singleton
 class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
-                             @Inject val pixRepository: PixRepository
+                             @Inject val pixRepository: PixRepository,
+                             @Inject val itauClient: ItauClient
 ): KeyManagerGrpcServiceGrpc.KeyManagerGrpcServiceImplBase() {
-
-    private val logger = LoggerFactory.getLogger(KeyManagerGrpcEndpoint::class.java)
-
+    
     override fun cadastra(request: KeyManagerGrpcRequest?, responseObserver: StreamObserver<KeyManagerGrpcReply>?) {
-        val validation = ValidacoesService(request, responseObserver)
+        val validation = ValidacoesCriacaoService(request, responseObserver)
         checaCondicoes(request, validation, responseObserver)
         chamaServices(request, responseObserver)
+    }
+
+    override fun exclui(request: ExcuiChaveGrpcRequest?, responseObserver: StreamObserver<ExcuiChaveGrpcResponse>?) {
+        val validation = ValidacoesExclusaoService(request!!,itauClient,pixRepository,responseObserver)
+        if(validation.checaPropriedade()){
+            val deletePixService = DeletePixService(pixRepository)
+            val response = ExcuiChaveGrpcResponse.newBuilder().
+            setIdentificadorCliente(request.identificadorCliente).
+            setPixId(request.pixId).build()
+            deletePixService.deletaPix(UUID.fromString(request.pixId))
+            responseObserver?.onNext(response)
+            responseObserver?.onCompleted()
+        }
     }
 
     private fun chamaServices(
@@ -57,7 +64,7 @@ class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
 
     private fun checaCondicoes(
         request: KeyManagerGrpcRequest?,
-        validation: ValidacoesService,
+        validation: ValidacoesCriacaoService,
         responseObserver: StreamObserver<KeyManagerGrpcReply>?
     ) {
         when {
