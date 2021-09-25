@@ -127,6 +127,23 @@ class PixgRPCUnityTests {
             assertEquals("Não foi encontrado um cliente com esse id",status.description)
         }
     }
+    @Test
+    internal fun `deve retornar erro quando cliente não existir`(){
+        val request = ExcuiChaveGrpcRequest
+            .newBuilder()
+            .setIdentificadorCliente("0d1bb194-3c52-4e67-8c35-a93c0af9286p")
+            .setPixId("ab56adf4-d641-4402-9365-6fb2ed0459ef")
+            .build()
+        `when`((itauClient.checkClienteFromServer(request.identificadorCliente)))
+            .thenThrow(HttpClientResponseException::class.java)
+        val error = org.junit.jupiter.api.assertThrows<StatusRuntimeException> {
+            grpcClient.exclui(request)
+        }
+        with(error){
+            assertEquals(Status.NOT_FOUND.code,status.code)
+            assertEquals("Cliente não encontrado!",status.description)
+        }
+    }
     @MockBean(ItauClient::class)
     fun itauClientBean():ItauClient{
        return mock(ItauClient::class.java,Mockito.RETURNS_DEEP_STUBS)

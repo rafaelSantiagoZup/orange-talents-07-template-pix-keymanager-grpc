@@ -18,7 +18,7 @@ class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
                              @Inject val pixRepository: PixRepository,
                              @Inject val itauClient: ItauClient
 ): KeyManagerGrpcServiceGrpc.KeyManagerGrpcServiceImplBase() {
-    
+
     override fun cadastra(request: KeyManagerGrpcRequest?, responseObserver: StreamObserver<KeyManagerGrpcReply>?) {
         val validation = ValidacoesCriacaoService(request, responseObserver)
         checaCondicoes(request, validation, responseObserver)
