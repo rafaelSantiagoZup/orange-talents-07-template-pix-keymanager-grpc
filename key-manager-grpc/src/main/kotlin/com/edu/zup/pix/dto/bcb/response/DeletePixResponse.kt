@@ -8,11 +8,23 @@ import javax.validation.constraints.NotNull
 
 @Introspected
 @JacksonXmlRootElement(localName = "DeletePixKeyRequest")
-data class DeletePixResponse(
+class DeletePixResponse(
     @field:NotBlank
     val key:String?,
     @field:NotBlank
     val participant:String?,
     @field:NotNull
     val deletedAt:LocalDateTime?
-)
+){
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
+    override fun toString(): String {
+        return super.toString()
+    }
+}

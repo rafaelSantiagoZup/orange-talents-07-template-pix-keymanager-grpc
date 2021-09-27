@@ -8,7 +8,10 @@ import com.edu.zup.pix.repository.PixRepository
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
+import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import java.lang.Exception
 import java.util.*
 
 class DeletePixService(
@@ -17,7 +20,7 @@ class DeletePixService(
     val request: ExcuiChaveGrpcRequest,
     val responseObserver: StreamObserver<ExcuiChaveGrpcResponse>?
 ) {
-    @Throws(StatusRuntimeException::class)
+
     fun deletaPix(){
         val response = excuiChaveGrpcResponse()
         try{
@@ -56,8 +59,6 @@ class DeletePixService(
             )
             return
         }
-
-
     }
 
     private fun excuiChaveGrpcResponse() =

@@ -84,12 +84,12 @@ class PixgRPCUnityTests {
         }
     }
     @Test
-    internal fun `deve retornar chave aleatória`() {
+    internal fun `deve retornar chave aleatória vinda do bcb`() {
         val request =  KeyManagerGrpcRequest
             .newBuilder()
             .setIdentificadorCliente("0d1bb194-3c52-4e67-8c35-a93c0af9284f")
             .setTipoChave(TipoChave.chave_aleatoria)
-            .setValorChave("123")
+            .setValorChave("")
             .setTipoConta(TipoConta.CONTA_CORRENTE)
             .build()
         `when`((itauClient.getClienteFromServer(request.identificadorCliente,request.tipoConta.name)))
