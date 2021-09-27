@@ -1,9 +1,9 @@
-package com.edu.zup.pix.requests
+package com.edu.zup.pix.dto.itau.request
 
 import com.edu.zup.TipoConta
 import com.edu.zup.pix.entidades.Cliente
-import com.edu.zup.pix.requests.InstituicaoRequest.Companion.toModel
-import com.edu.zup.pix.requests.TitularRequest.Companion.toModel
+import com.edu.zup.pix.dto.itau.request.InstituicaoRequest.Companion.toModel
+import com.edu.zup.pix.dto.itau.request.TitularRequest.Companion.toModel
 import io.micronaut.core.annotation.Introspected
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
@@ -12,16 +12,16 @@ import javax.validation.constraints.NotBlank
 
 @Introspected
 data class ClienteRequest(
-        @field:NotBlank
+    @field:NotBlank
         @field:Enumerated(EnumType.STRING)
         val tipo:TipoConta?,
-        @ManyToOne
+    @ManyToOne
         val instituicao: InstituicaoRequest,
-        @field:NotBlank
+    @field:NotBlank
         val agencia:String?,
-        @field:NotBlank
+    @field:NotBlank
         val numero:String,
-        @ManyToOne
+    @ManyToOne
         val titular: TitularRequest
         ) {
         companion object{

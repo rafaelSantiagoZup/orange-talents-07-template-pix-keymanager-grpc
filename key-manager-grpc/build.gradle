@@ -41,6 +41,8 @@ dependencies {
         runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
         testImplementation("com.h2database:h2")
         implementation("io.micronaut:micronaut-http-client")
+        implementation("io.micronaut.xml:micronaut-jackson-xml:2.0.0")
+        implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0-rc2")
         testImplementation("org.testcontainers:junit-jupiter")
         testImplementation("org.testcontainers:postgresql")
         testImplementation("org.testcontainers:testcontainers")

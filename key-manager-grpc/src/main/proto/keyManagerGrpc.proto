@@ -12,11 +12,10 @@ service KeyManagerGrpcService {
 }
 
 enum TipoChave{
-  UNKNOWN_TYPE = 0;
+  chave_aleatoria = 0;
   CPF = 1;
   telefone_celular = 2;
   email = 3;
-  chave_aleatoria = 4;
 }
 
 enum TipoConta{

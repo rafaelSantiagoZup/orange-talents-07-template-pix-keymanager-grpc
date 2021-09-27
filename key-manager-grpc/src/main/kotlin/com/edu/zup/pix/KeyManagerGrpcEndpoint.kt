@@ -1,6 +1,7 @@
 package com.edu.zup.pix
 
 import com.edu.zup.*
+import com.edu.zup.pix.client.BcbClient
 import com.edu.zup.pix.client.ItauClient
 import com.edu.zup.pix.repository.PixRepository
 import com.edu.zup.pix.services.*
@@ -16,7 +17,8 @@ import java.util.*
 @Singleton
 class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
                              @Inject val pixRepository: PixRepository,
-                             @Inject val itauClient: ItauClient
+                             @Inject val itauClient: ItauClient,
+                             @Inject val bcbClient: BcbClient
 ): KeyManagerGrpcServiceGrpc.KeyManagerGrpcServiceImplBase() {
 
     override fun cadastra(request: KeyManagerGrpcRequest?, responseObserver: StreamObserver<KeyManagerGrpcReply>?) {
@@ -28,13 +30,8 @@ class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
     override fun exclui(request: ExcuiChaveGrpcRequest?, responseObserver: StreamObserver<ExcuiChaveGrpcResponse>?) {
         val validation = ValidacoesExclusaoService(request!!,itauClient,pixRepository,responseObserver)
         if(validation.checaPropriedade()){
-            val deletePixService = DeletePixService(pixRepository)
-            val response = ExcuiChaveGrpcResponse.newBuilder().
-            setIdentificadorCliente(request.identificadorCliente).
-            setPixId(request.pixId).build()
-            deletePixService.deletaPix(UUID.fromString(request.pixId))
-            responseObserver?.onNext(response)
-            responseObserver?.onCompleted()
+            val deletePixService = DeletePixService(pixRepository,bcbClient,request,responseObserver)
+            deletePixService.deletaPix()
         }
     }
 
@@ -44,7 +41,7 @@ class KeyManagerGrpcEndpoint(@Inject val contaClient: ItauClient,
     ) {
         try {
             val cliente = ItauService(request!!,contaClient).buscaCliente()
-            SavePixService(cliente, request, responseObserver,pixRepository).pixServices()
+            SavePixService(cliente, request, responseObserver,pixRepository).pixServices(bcbClient)
         } catch (e: HttpClientResponseException) {
             responseObserver?.onError(
                 Status.NOT_FOUND

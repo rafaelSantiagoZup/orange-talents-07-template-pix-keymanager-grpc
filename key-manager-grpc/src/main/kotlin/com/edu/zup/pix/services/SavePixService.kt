@@ -3,13 +3,21 @@ package com.edu.zup.pix.services
 import com.edu.zup.KeyManagerGrpcReply
 import com.edu.zup.KeyManagerGrpcRequest
 import com.edu.zup.TipoChave
-import com.edu.zup.pix.repository.PixRepository
+import com.edu.zup.TipoConta
+import com.edu.zup.pix.client.BcbClient
+import com.edu.zup.pix.dto.bcb.enums.TipoDeDocumento
+import com.edu.zup.pix.dto.bcb.enums.TiposDeChaveBCB
+import com.edu.zup.pix.dto.bcb.enums.TiposDeContaBCB
+import com.edu.zup.pix.dto.bcb.request.ClienteBcbRequest
+import com.edu.zup.pix.dto.bcb.request.ContaRequest
+import com.edu.zup.pix.dto.bcb.request.CreatePixKeyRequest
 import com.edu.zup.pix.entidades.Cliente
 import com.edu.zup.pix.entidades.Pix
+import com.edu.zup.pix.repository.PixRepository
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
-import java.util.*
 import javax.transaction.Transactional
 import javax.validation.ConstraintViolationException
 import javax.validation.Valid
@@ -24,16 +32,41 @@ class SavePixService(
     val pixRepository: PixRepository
     ) {
 
-    fun pixServices(){
+    fun pixServices(bcbClient: BcbClient){
         var pix = Pix(request.valorChave, request.tipoChave, cliente, request.tipoConta)
-        if (request.tipoChave == TipoChave.chave_aleatoria) {
-            pix.chave = UUID.randomUUID().toString()
+        var pixRequestBCB = criaPixRequestBCB(pix)
+        try {
+            val pixResponseBCB = bcbClient.notificaBCB(pixRequestBCB).body()
+            if (request.tipoChave == TipoChave.chave_aleatoria) {
+                println(pixResponseBCB.key)
+                pix.chave = pixResponseBCB.key
+            }
+            if (checaExistenciaDeChavePix(pix)) return
+            if (persistePix(pix)) return
+            criaResponse(pix, responseObserver!!)
+        }catch (e:HttpClientResponseException){
+            responseObserver?.onError(
+                Status.NOT_FOUND
+                    .withDescription("A chave pix nao pode ser cadastrada!")
+                    .asRuntimeException()
+            )
         }
-        if (checaExistenciaDeChavePix(pix)) return
-        if (persistePix(pix)) return
-        criaResponse(pix, responseObserver!!)
     }
-
+    private fun criaPixRequestBCB(pix: Pix): CreatePixKeyRequest {
+        return CreatePixKeyRequest(
+            converteTipoChaveFromPixItauRequest(pix.tipoChave!!),
+            pix.chave,
+            ContaRequest(
+                        pix.cliente?.instituicao?.ispb,
+                        pix.cliente?.agencia,
+                        pix.cliente?.numero,
+                        converteTipoContaBCBfromTipoContaItau(pix.tipoConta!!)),
+            ClienteBcbRequest(
+                TipoDeDocumento.NATURAL_PERSON!!,
+                pix.cliente?.titular?.nome,
+                pix.cliente?.titular?.cpf)
+        )
+    }
     private fun criaResponse(
         pix: Pix,
         responseObserver: StreamObserver<KeyManagerGrpcReply>
@@ -79,5 +112,20 @@ class SavePixService(
             return true
         }
         return false
+    }
+    fun converteTipoChaveFromPixItauRequest(pixItauRequest:TipoChave): TiposDeChaveBCB {
+        when{
+            pixItauRequest == TipoChave.CPF -> return TiposDeChaveBCB.CPF
+            pixItauRequest == TipoChave.email -> return TiposDeChaveBCB.EMAIL
+            pixItauRequest == TipoChave.telefone_celular -> return TiposDeChaveBCB.PHONE
+            else -> return TiposDeChaveBCB.RANDOM
+
+        }
+    }
+    fun converteTipoContaBCBfromTipoContaItau(tipo: TipoConta): TiposDeContaBCB {
+        when{
+            tipo == TipoConta.CONTA_CORRENTE -> return TiposDeContaBCB.CACC
+            else -> return TiposDeContaBCB.SVGS
+        }
     }
 }

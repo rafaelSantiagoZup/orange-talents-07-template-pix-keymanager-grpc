@@ -1,4 +1,4 @@
-package com.edu.zup.pix.requests
+package com.edu.zup.pix.dto.itau.request
 
 import com.edu.zup.pix.entidades.Instituicao
 import io.micronaut.core.annotation.Introspected

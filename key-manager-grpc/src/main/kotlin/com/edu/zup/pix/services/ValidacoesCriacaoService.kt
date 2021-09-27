@@ -31,10 +31,10 @@ class ValidacoesCriacaoService(val request: KeyManagerGrpcRequest?, val response
         return
     }
     fun checaChaveAleatoria(){
-//        if(request?.valorChave.equals("")){
-//            responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("Quando tipo for chave aleatória, o valor da chave não deve ser preenchido").asRuntimeException())
-//        }
-//        return
+        if(request?.valorChave?.isNotEmpty() == true){
+            responseObserver!!.onError(Status.INVALID_ARGUMENT.withDescription("Quando tipo for chave aleatória, o valor da chave não deve ser preenchido").asRuntimeException())
+        }
+        return
     }
 
 }

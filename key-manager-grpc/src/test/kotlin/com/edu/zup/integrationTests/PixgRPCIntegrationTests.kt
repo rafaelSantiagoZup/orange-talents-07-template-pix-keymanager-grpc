@@ -4,11 +4,11 @@ import com.edu.zup.*
 import com.edu.zup.pix.client.ItauClient
 import com.edu.zup.pix.entidades.Pix
 import com.edu.zup.pix.repository.PixRepository
-import com.edu.zup.pix.requests.ClienteCheckRequest
-import com.edu.zup.pix.requests.ClienteRequest
-import com.edu.zup.pix.requests.ClienteRequest.Companion.toModel
-import com.edu.zup.pix.requests.InstituicaoRequest
-import com.edu.zup.pix.requests.TitularRequest
+import com.edu.zup.pix.dto.itau.request.ClienteCheckRequest
+import com.edu.zup.pix.dto.itau.request.ClienteRequest
+import com.edu.zup.pix.dto.itau.request.ClienteRequest.Companion.toModel
+import com.edu.zup.pix.dto.itau.request.InstituicaoRequest
+import com.edu.zup.pix.dto.itau.request.TitularRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest

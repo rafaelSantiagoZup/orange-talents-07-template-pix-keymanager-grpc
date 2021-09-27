@@ -2,9 +2,9 @@ package com.edu.zup.unityTests
 
 import com.edu.zup.*
 import com.edu.zup.pix.client.ItauClient
-import com.edu.zup.pix.requests.ClienteRequest
-import com.edu.zup.pix.requests.InstituicaoRequest
-import com.edu.zup.pix.requests.TitularRequest
+import com.edu.zup.pix.dto.itau.request.ClienteRequest
+import com.edu.zup.pix.dto.itau.request.InstituicaoRequest
+import com.edu.zup.pix.dto.itau.request.TitularRequest
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -94,13 +94,15 @@ class PixgRPCUnityTests {
             .build()
         `when`((itauClient.getClienteFromServer(request.identificadorCliente,request.tipoConta.name)))
             .thenReturn(
-                HttpResponse.ok(ClienteRequest(
+                HttpResponse.ok(
+                    ClienteRequest(
                 TipoConta.CONTA_CORRENTE,
                 InstituicaoRequest("ITAÚ UNIBANCO S.A.","60701190"),
                 "0001",
                 "212233",
                 TitularRequest(request.identificadorCliente,"Alberto Tavares","06628726061")
-            )))
+            )
+                ))
         val response = grpcClient.cadastra(request)
         with(response){
             assertTrue(pixId.matches("[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}".toRegex()))
