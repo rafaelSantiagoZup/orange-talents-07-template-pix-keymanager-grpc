@@ -44,7 +44,7 @@ class PixgRPCUnityTests {
         println(error.toString())
         with(error){
             assertEquals(Status.INVALID_ARGUMENT.code,status.code)
-            assertEquals("O CPF DEVE SER NO FORMATO 11111111111",status.description)
+            assertEquals("Formato de cpf invalido",status.description)
         }
     }
     @Test
@@ -145,6 +145,10 @@ class PixgRPCUnityTests {
             assertEquals(Status.NOT_FOUND.code,status.code)
             assertEquals("Cliente não encontrado!",status.description)
         }
+    }
+    @Test
+    internal fun `deve retornar strings corretas dos enums`(){
+
     }
     @MockBean(ItauClient::class)
     fun itauClientBean():ItauClient{

@@ -9,15 +9,13 @@ import io.grpc.stub.StreamObserver
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import java.util.*
 
-class ValidacoesExclusaoService(val requestDelete: ExcuiChaveGrpcRequest,
-                                val client: ItauClient,
+class ValidacoesExclusaoService(val client: ItauClient,
                                 val pixRepository: PixRepository,
                                 val responseObserver: StreamObserver<ExcuiChaveGrpcResponse>?) {
-    fun checaPropriedade():Boolean{
+    fun checaPropriedade(pixId:UUID):Boolean{
 
         try{
-            val clientResponse = client.checkClienteFromServer(requestDelete.identificadorCliente).body()
-            val databaseResponse = pixRepository.findById(UUID.fromString(requestDelete.pixId))
+            val databaseResponse = pixRepository.findById(pixId)
             if(databaseResponse.isEmpty){
                 responseObserver!!.onError(
                     Status.NOT_FOUND.

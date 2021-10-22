@@ -6,18 +6,19 @@ option java_outer_classname = "KeyManagerGrpc";
 
 package com.edu.zup;
 
+import "google/protobuf/timestamp.proto";
+
 service KeyManagerGrpcService {
   rpc cadastra (KeyManagerGrpcRequest) returns (KeyManagerGrpcReply) {}
   rpc exclui(ExcuiChaveGrpcRequest) returns (ExcuiChaveGrpcResponse) {}
+  rpc consulta(ConsultaChaveGrpcRequest) returns (ConsultaChaveGrpcResponse) {}
 }
-
 enum TipoChave{
   chave_aleatoria = 0;
   CPF = 1;
   telefone_celular = 2;
   email = 3;
 }
-
 enum TipoConta{
   UNKNOWN = 0;
   CONTA_CORRENTE = 1;
@@ -41,4 +42,34 @@ message ExcuiChaveGrpcRequest{
 message ExcuiChaveGrpcResponse{
   string identificadorCliente = 1;
   string pixId = 2;
+}
+message ConsultaChaveGrpcRequest{
+  message FiltroPorPixId {
+    string identificadorCliente = 1;
+    string pixId = 2;
+  }
+  oneof filtro {
+    FiltroPorPixId pixId = 1;
+    string valorChave = 2;
+  }
+}
+message ConsultaChaveGrpcResponse{
+  message ChavePix{
+    message ContaInfo{
+      TipoConta tipoConta = 1;
+      string instituicao = 2;
+      string nomeDoTitular = 3;
+      string cpfDoTitular = 4;
+      string agencia = 5;
+      string numeroDaConta = 6;
+    }
+
+    TipoChave tipoChave = 1;
+    string chave = 2;
+    ContaInfo conta = 3;
+    google.protobuf.Timestamp criadaEm = 4;
+  }
+  string identificadorCliente = 1;
+  string pixId = 2;
+  ChavePix chave = 3;
 }

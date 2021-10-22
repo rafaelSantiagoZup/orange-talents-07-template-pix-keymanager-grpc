@@ -5,6 +5,7 @@ import com.edu.zup.KeyManagerGrpcRequest
 import com.edu.zup.TipoChave
 import com.edu.zup.TipoConta
 import com.edu.zup.pix.client.BcbClient
+import com.edu.zup.pix.client.ItauClient
 import com.edu.zup.pix.dto.bcb.enums.TipoDeDocumento
 import com.edu.zup.pix.dto.bcb.enums.TiposDeChaveBCB
 import com.edu.zup.pix.dto.bcb.enums.TiposDeContaBCB
@@ -15,6 +16,7 @@ import com.edu.zup.pix.entidades.Cliente
 import com.edu.zup.pix.entidades.Pix
 import com.edu.zup.pix.repository.PixRepository
 import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
@@ -26,19 +28,41 @@ import javax.validation.ValidationException
 @Validated
 class SavePixService(
     @Valid
-    val cliente: Cliente,
     val request: KeyManagerGrpcRequest,
     val responseObserver: StreamObserver<KeyManagerGrpcReply>?,
-    val pixRepository: PixRepository
-    ) {
-
-    fun pixServices(bcbClient: BcbClient){
+    val pixRepository: PixRepository,
+    val bcbClient: BcbClient,
+    val itauClient: ItauClient
+) {
+    fun executaServices() {
+        if(!ValidacoesCriacaoService(request,responseObserver).checaCondicoes()){
+            return
+        }
+        try {
+            val cliente = ItauService(request!!,itauClient).buscaCliente()
+            pixServices(cliente)
+        } catch (e: HttpClientResponseException) {
+            responseObserver?.onError(
+                Status.NOT_FOUND
+                    .withDescription("Não foi encontrado um cliente com esse id")
+                    .asRuntimeException()
+            )
+            return
+        } catch (e: StatusRuntimeException){
+            responseObserver?.onError(
+                Status.NOT_FOUND
+                    .withDescription("Não foi encontrado um cliente com esse id")
+                    .asRuntimeException()
+            )
+            return
+        }
+    }
+    fun pixServices(cliente: Cliente){
         var pix = Pix(request.valorChave, request.tipoChave, cliente, request.tipoConta)
         var pixRequestBCB = criaPixRequestBCB(pix)
         try {
             val pixResponseBCB = bcbClient.notificaBCB(pixRequestBCB).body()
             if (request.tipoChave == TipoChave.chave_aleatoria) {
-                println(pixResponseBCB.key)
                 pix.chave = pixResponseBCB.key
             }
             if (checaExistenciaDeChavePix(pix)) return
